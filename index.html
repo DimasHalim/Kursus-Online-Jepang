@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nihongo Academy – Kursus Bahasa Jepang Online</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&family=Shippori+Mincho:wght@400;600;800&family=DM+Sans:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --red:    #c0392b;
+      --red2:   #e74c3c;
+      --ink:    #1a1008;
+      --cream:  #fdf6ec;
+      --warm:   #f5e6cc;
+      --gold:   #d4a843;
+      --mist:   #8b7355;
+      --paper:  #fffdf8;
+      --shadow: rgba(26,16,8,.18);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── Custom cursor ─────────────────────────────────────── */
+    #cursor {
+      width: 14px; height: 14px;
+      background: var(--red);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: transform .12s ease, background .2s;
+      mix-blend-mode: multiply;
+    }
+    #cursor-ring {
+      width: 38px; height: 38px;
+      border: 1.5px solid var(--red);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%,-50%);
+      transition: transform .35s ease, opacity .3s;
+      opacity: .5;
+    }
+    body:hover #cursor { transform: translate(-50%,-50%) scale(1); }
+
+    /* ── Scroll progress ───────────────────────────────────── */
+    #progress-bar {
+      position: fixed; top: 0; left: 0; height: 3px;
+      background: linear-gradient(90deg, var(--red), var(--gold));
+      width: 0%; z-index: 1000;
+      transition: width .1s linear;
+    }
+
+    /* ── Nav ───────────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.2rem 4rem;
+      background: rgba(253,246,236,.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(212,168,67,.2);
+      transition: padding .3s;
+    }
+    nav.scrolled { padding: .8rem 4rem; }
+    .nav-logo {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 1.4rem; font-weight: 900;
+      color: var(--red);
+      letter-spacing: .02em;
+    }
+    .nav-logo span { color: var(--ink); }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      font-size: .88rem; font-weight: 600; letter-spacing: .06em;
+      text-transform: uppercase; text-decoration: none;
+      color: var(--mist);
+      position: relative;
+      transition: color .2s;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute; bottom: -3px; left: 0; right: 100%;
+      height: 1.5px; background: var(--red);
+      transition: right .25s ease;
+    }
+    .nav-links a:hover { color: var(--red); }
+    .nav-links a:hover::after { right: 0; }
+    .nav-cta {
+      background: var(--red); color: #fff !important;
+      padding: .5rem 1.4rem; border-radius: 2px;
+      transition: background .2s !important;
+    }
+    .nav-cta:hover { background: var(--ink) !important; }
+    .nav-cta::after { display: none !important; }
+
+    /* ── Hero ──────────────────────────────────────────────── */
+    #hero {
+      min-height: 100vh;
+      display: grid; grid-template-columns: 1fr 1fr;
+      align-items: center;
+      padding: 7rem 4rem 4rem;
+      position: relative;
+      overflow: hidden;
+      background: var(--cream);
+    }
+
+    /* Paper texture overlay */
+    #hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23noise)' opacity='.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0;
+    }
+
+    /* Large kanji watermark */
+    .hero-kanji {
+      position: absolute; right: 2%;
+      top: 50%; transform: translateY(-50%);
+      font-family: 'Noto Serif JP', serif;
+      font-size: 28vw; font-weight: 900;
+      color: rgba(192,57,43,.06);
+      line-height: 1; user-select: none; pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Decorative vertical red line */
+    #hero::after {
+      content: '';
+      position: absolute; left: 50%; top: 10%; bottom: 10%;
+      width: 1px; background: rgba(192,57,43,.15);
+    }
+
+    .hero-left { position: relative; z-index: 1; }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: .5rem;
+      font-size: .78rem; font-weight: 600; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--red);
+      border: 1px solid var(--red); padding: .35rem .9rem;
+      margin-bottom: 2rem;
+      animation: fadeUp .8s ease both;
+    }
+    .hero-tag::before {
+      content: '日';
+      font-family: 'Noto Serif JP', serif;
+      font-size: 1rem;
+    }
+    h1 {
+      font-family: 'Noto Serif JP', serif;
+      font-size: clamp(2.8rem,5vw,5rem);
+      font-weight: 900; line-height: 1.1;
+      color: var(--ink);
+      margin-bottom: 1.5rem;
+      animation: fadeUp .9s .1s ease both;
+    }
+    h1 em {
+      font-style: normal; color: var(--red);
+      border-bottom: 3px solid var(--gold);
+    }
+    .hero-sub {
+      font-size: 1.05rem; color: var(--mist); line-height: 1.7;
+      max-width: 440px; margin-bottom: 2.5rem;
+      font-weight: 300;
+      animation: fadeUp 1s .2s ease both;
+    }
+    .hero-btns {
+      display: flex; gap: 1rem; flex-wrap: wrap;
+      animation: fadeUp 1s .3s ease both;
+    }
+    .btn-primary {
+      background: var(--red); color: #fff;
+      padding: .9rem 2.2rem; font-weight: 600;
+      letter-spacing: .04em; text-decoration: none;
+      border: 2px solid var(--red);
+      transition: all .25s; display: inline-block;
+    }
+    .btn-primary:hover { background: transparent; color: var(--red); }
+    .btn-secondary {
+      background: transparent; color: var(--ink);
+      padding: .9rem 2.2rem; font-weight: 600;
+      letter-spacing: .04em; text-decoration: none;
+      border: 2px solid var(--ink);
+      transition: all .25s; display: inline-block;
+    }
+    .btn-secondary:hover { background: var(--ink); color: #fff; }
+
+    .hero-right {
+      position: relative; z-index: 1;
+      display: flex; justify-content: center; align-items: center;
+    }
+    .hero-card-wrap {
+      position: relative; width: 420px;
+      animation: floatCard 5s ease-in-out infinite;
+    }
+    @keyframes floatCard {
+      0%,100% { transform: translateY(0) rotate(-1deg); }
+      50%      { transform: translateY(-16px) rotate(1deg); }
+    }
+    .hero-card {
+      background: #fff;
+      box-shadow: 24px 24px 0 var(--warm), 0 8px 48px var(--shadow);
+      padding: 2.5rem;
+      border-top: 4px solid var(--red);
+    }
+    .hc-label {
+      font-size: .75rem; font-weight: 600; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--gold);
+      margin-bottom: .5rem;
+    }
+    .hc-title {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 1.5rem; font-weight: 700;
+      color: var(--ink); margin-bottom: 1.2rem;
+    }
+    .hc-levels {
+      display: flex; gap: .6rem; flex-wrap: wrap; margin-bottom: 1.4rem;
+    }
+    .hc-levels span {
+      font-size: .78rem; font-weight: 700;
+      background: var(--warm); color: var(--ink);
+      padding: .3rem .8rem; border-radius: 2px;
+      border: 1px solid var(--gold);
+    }
+    .hc-stats {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 1rem; border-top: 1px solid var(--warm);
+      padding-top: 1.2rem;
+    }
+    .hc-stat-num {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 1.7rem; font-weight: 900; color: var(--red);
+    }
+    .hc-stat-label { font-size: .74rem; color: var(--mist); margin-top: .1rem; }
+
+    /* ── Stats strip ──────────────────────────────────────── */
+    #stats {
+      background: var(--ink); color: var(--cream);
+      display: grid; grid-template-columns: repeat(4,1fr);
+      padding: 3rem 4rem; gap: 2rem;
+    }
+    .stat-item { text-align: center; }
+    .stat-num {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 2.8rem; font-weight: 900; color: var(--gold);
+      display: block;
+    }
+    .stat-desc { font-size: .85rem; color: rgba(253,246,236,.6); letter-spacing: .06em; text-transform: uppercase; margin-top: .3rem; }
+
+    /* ── Shared section styles ─────────────────────────────── */
+    section { padding: 7rem 4rem; }
+    .section-tag {
+      font-size: .78rem; font-weight: 600; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--red);
+      display: flex; align-items: center; gap: .7rem;
+      margin-bottom: 1rem;
+    }
+    .section-tag::before { content: ''; width: 32px; height: 1.5px; background: var(--red); }
+    h2 {
+      font-family: 'Noto Serif JP', serif;
+      font-size: clamp(2rem,3.5vw,3rem); font-weight: 900;
+      color: var(--ink); line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+    .lead {
+      font-size: 1.05rem; color: var(--mist); line-height: 1.75;
+      max-width: 600px; font-weight: 300;
+    }
+
+    /* Reveal animations */
+    .reveal { opacity: 0; transform: translateY(40px); transition: opacity .7s ease, transform .7s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-left { opacity: 0; transform: translateX(-40px); transition: opacity .7s ease, transform .7s ease; }
+    .reveal-left.visible { opacity: 1; transform: translateX(0); }
+    .reveal-right { opacity: 0; transform: translateX(40px); transition: opacity .7s ease, transform .7s ease; }
+    .reveal-right.visible { opacity: 1; transform: translateX(0); }
+
+    /* ── About / Info section ─────────────────────────────── */
+    #about {
+      background: var(--paper);
+      display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center;
+    }
+    .about-visual {
+      position: relative;
+    }
+    .about-img-box {
+      width: 100%;
+      background: var(--cream);
+      aspect-ratio: 4/5;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+      box-shadow: 16px 16px 0 var(--warm);
+      position: relative;
+    }
+    .about-kanji-deco {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 12rem; font-weight: 900;
+      color: rgba(192,57,43,.12); line-height: 1;
+      text-align: center;
+    }
+    .about-badge {
+      position: absolute; bottom: -1.5rem; right: -1.5rem;
+      background: var(--red); color: #fff;
+      padding: 1.2rem 1.5rem; text-align: center;
+    }
+    .about-badge-num {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 2rem; font-weight: 900; display: block;
+    }
+    .about-badge-text { font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; }
+    .about-text h2 { margin-bottom: 1.5rem; }
+    .about-features { margin-top: 2.5rem; display: flex; flex-direction: column; gap: 1.2rem; }
+    .af-item {
+      display: flex; gap: 1.2rem; align-items: flex-start;
+    }
+    .af-icon {
+      width: 42px; height: 42px; flex-shrink: 0;
+      background: var(--warm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem;
+    }
+    .af-title { font-weight: 600; font-size: .95rem; margin-bottom: .2rem; }
+    .af-desc { font-size: .85rem; color: var(--mist); line-height: 1.6; }
+
+    /* ── Courses ──────────────────────────────────────────── */
+    #courses { background: var(--cream); }
+    .courses-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3.5rem; }
+    .courses-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; }
+    .course-card {
+      background: #fff;
+      border: 1px solid var(--warm);
+      overflow: hidden;
+      transition: transform .3s, box-shadow .3s;
+      position: relative;
+    }
+    .course-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 48px var(--shadow);
+    }
+    .course-card-top {
+      height: 200px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Noto Serif JP', serif;
+      font-size: 5rem; font-weight: 900;
+      position: relative; overflow: hidden;
+    }
+    .course-card-top::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,.25));
+    }
+    .card-n1 .course-card-top { background: linear-gradient(135deg,#c0392b,#8b1a10); color: rgba(255,255,255,.15); }
+    .card-n2 .course-card-top { background: linear-gradient(135deg,#2c3e50,#1a252f); color: rgba(255,255,255,.15); }
+    .card-n3 .course-card-top { background: linear-gradient(135deg,#8b6914,#6b4f10); color: rgba(255,255,255,.15); }
+    .card-adv .course-card-top { background: linear-gradient(135deg,#2d6a4f,#1b4332); color: rgba(255,255,255,.15); }
+    .card-conv .course-card-top { background: linear-gradient(135deg,#6b21a8,#3b0764); color: rgba(255,255,255,.15); }
+    .card-biz  .course-card-top { background: linear-gradient(135deg,#b45309,#78350f); color: rgba(255,255,255,.15); }
+    .course-level-badge {
+      position: absolute; top: 1rem; left: 1rem;
+      background: rgba(255,255,255,.15);
+      backdrop-filter: blur(8px);
+      color: #fff; font-size: .72rem; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase;
+      padding: .3rem .8rem; border: 1px solid rgba(255,255,255,.25);
+      z-index: 1;
+    }
+    .course-card-body { padding: 1.6rem; }
+    .cc-title { font-family: 'Noto Serif JP', serif; font-size: 1.1rem; font-weight: 700; margin-bottom: .5rem; }
+    .cc-desc { font-size: .84rem; color: var(--mist); line-height: 1.6; margin-bottom: 1.2rem; }
+    .cc-meta { display: flex; gap: 1.5rem; font-size: .78rem; color: var(--mist); margin-bottom: 1.2rem; }
+    .cc-meta span { display: flex; align-items: center; gap: .3rem; }
+    .cc-price {
+      display: flex; justify-content: space-between; align-items: center;
+      border-top: 1px solid var(--warm); padding-top: 1.1rem;
+    }
+    .price-num { font-family: 'Noto Serif JP', serif; font-size: 1.25rem; font-weight: 900; color: var(--red); }
+    .price-period { font-size: .75rem; color: var(--mist); }
+    .btn-enroll {
+      font-size: .8rem; font-weight: 700; letter-spacing: .06em;
+      text-transform: uppercase; background: var(--ink); color: #fff;
+      border: none; padding: .55rem 1.2rem; cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-enroll:hover { background: var(--red); }
+
+    /* ── How it works ─────────────────────────────────────── */
+    #how { background: var(--paper); }
+    .how-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 2rem; margin-top: 3.5rem; }
+    .how-step {
+      position: relative; padding: 2rem 1.5rem;
+      border: 1px solid var(--warm);
+      transition: border-color .3s;
+    }
+    .how-step:hover { border-color: var(--red); }
+    .how-num {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 4rem; font-weight: 900; color: rgba(192,57,43,.1);
+      line-height: 1; margin-bottom: .5rem;
+    }
+    .how-icon { font-size: 2rem; margin-bottom: .8rem; }
+    .how-title { font-weight: 700; margin-bottom: .5rem; }
+    .how-desc { font-size: .84rem; color: var(--mist); line-height: 1.65; }
+    .how-line {
+      position: absolute; top: 50%; right: -1rem;
+      width: 2rem; height: 1px; background: var(--gold);
+    }
+    .how-step:last-child .how-line { display: none; }
+
+    /* ── Sensei / Teacher ─────────────────────────────────── */
+    #sensei {
+      background: var(--ink); color: var(--cream);
+      display: grid; grid-template-columns: 1fr 1.2fr; gap: 6rem; align-items: center;
+    }
+    .sensei-visual {
+      aspect-ratio: 3/4; background: rgba(255,255,255,.05);
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid rgba(212,168,67,.2);
+      position: relative;
+    }
+    .sensei-kanji {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 9rem; font-weight: 900;
+      color: rgba(192,57,43,.3);
+    }
+    .sensei-name-tag {
+      position: absolute; bottom: 1.5rem; left: 1.5rem;
+      background: var(--red); padding: .8rem 1.2rem;
+    }
+    .sensei-name { font-family: 'Noto Serif JP', serif; font-size: 1.1rem; font-weight: 700; }
+    .sensei-role { font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; opacity: .8; }
+
+    .sensei-text .section-tag::before { background: var(--gold); }
+    .sensei-text .section-tag { color: var(--gold); }
+    .sensei-text h2 { color: var(--cream); }
+    .sensei-text .lead { color: rgba(253,246,236,.7); }
+    .sensei-quals { margin-top: 2rem; display: flex; flex-direction: column; gap: .8rem; }
+    .sq-item {
+      display: flex; align-items: center; gap: 1rem;
+      font-size: .9rem; color: rgba(253,246,236,.8);
+    }
+    .sq-item::before {
+      content: ''; width: 6px; height: 6px;
+      background: var(--gold); border-radius: 50%; flex-shrink: 0;
+    }
+
+    /* ── Ratings / Reviews ────────────────────────────────── */
+    #reviews { background: var(--cream); }
+    .reviews-header {
+      display: grid; grid-template-columns: auto 1fr; gap: 5rem; align-items: center; margin-bottom: 4rem;
+    }
+    .rating-big {
+      text-align: center;
+      border-right: 1px solid var(--warm); padding-right: 5rem;
+    }
+    .rating-num {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 5rem; font-weight: 900; color: var(--red); line-height: 1;
+    }
+    .stars-big { font-size: 1.6rem; letter-spacing: .1em; color: var(--gold); margin: .4rem 0; }
+    .rating-count { font-size: .85rem; color: var(--mist); }
+    .rating-bars { display: flex; flex-direction: column; gap: .7rem; max-width: 420px; }
+    .rb-row { display: flex; align-items: center; gap: 1rem; }
+    .rb-label { font-size: .82rem; font-weight: 600; width: 30px; flex-shrink: 0; color: var(--mist); }
+    .rb-track {
+      flex: 1; height: 6px; background: var(--warm); border-radius: 0;
+      overflow: hidden;
+    }
+    .rb-fill {
+      height: 100%; background: var(--gold);
+      transition: width 1.2s cubic-bezier(.4,0,.2,1);
+      width: 0%;
+    }
+    .rb-pct { font-size: .78rem; color: var(--mist); width: 36px; text-align: right; }
+
+    .reviews-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; }
+    .review-card {
+      background: #fff; padding: 2rem;
+      border: 1px solid var(--warm);
+      transition: transform .3s, box-shadow .3s;
+    }
+    .review-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px var(--shadow); }
+    .rc-stars { color: var(--gold); font-size: 1rem; letter-spacing: .08em; margin-bottom: 1rem; }
+    .rc-text { font-size: .9rem; color: var(--mist); line-height: 1.75; margin-bottom: 1.5rem; font-style: italic; }
+    .rc-author { display: flex; align-items: center; gap: .9rem; }
+    .rc-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--warm); display: flex; align-items: center; justify-content: center;
+      font-family: 'Noto Serif JP', serif; font-size: 1rem; font-weight: 700; color: var(--red);
+      flex-shrink: 0;
+    }
+    .rc-name { font-weight: 600; font-size: .9rem; }
+    .rc-info { font-size: .78rem; color: var(--mist); }
+    .rc-course-badge {
+      margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid var(--warm);
+      font-size: .74rem; color: var(--red); font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+    }
+
+    /* ── Pricing ──────────────────────────────────────────── */
+    #pricing { background: var(--paper); }
+    .pricing-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 2rem; margin-top: 3.5rem; }
+    .pricing-card {
+      border: 1px solid var(--warm);
+      padding: 2.5rem; position: relative;
+      transition: transform .3s, box-shadow .3s;
+    }
+    .pricing-card:hover { transform: translateY(-8px); box-shadow: 0 20px 48px var(--shadow); }
+    .pricing-card.featured {
+      background: var(--ink); color: var(--cream);
+      border-color: var(--ink);
+    }
+    .pricing-card.featured .pc-price { color: var(--gold); }
+    .pricing-card.featured .pc-desc { color: rgba(253,246,236,.6); }
+    .pricing-card.featured .pc-feature { color: rgba(253,246,236,.8); border-color: rgba(255,255,255,.08); }
+    .pricing-card.featured .pc-feature::before { background: var(--gold); }
+    .featured-badge {
+      position: absolute; top: -1px; left: 50%; transform: translateX(-50%);
+      background: var(--red); color: #fff;
+      font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+      padding: .3rem 1rem;
+    }
+    .pc-plan { font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); margin-bottom: .5rem; }
+    .pc-price { font-family: 'Noto Serif JP', serif; font-size: 2.8rem; font-weight: 900; color: var(--red); line-height: 1; }
+    .pc-price sub { font-size: 1rem; vertical-align: middle; }
+    .pc-price sup { font-size: 1.2rem; }
+    .pc-period { font-size: .8rem; color: var(--mist); margin-bottom: 1.5rem; }
+    .pc-desc { font-size: .88rem; color: var(--mist); line-height: 1.65; margin-bottom: 2rem; border-bottom: 1px solid var(--warm); padding-bottom: 2rem; }
+    .pc-features { display: flex; flex-direction: column; gap: .8rem; margin-bottom: 2rem; }
+    .pc-feature {
+      font-size: .86rem; padding-bottom: .8rem;
+      border-bottom: 1px solid var(--warm);
+      display: flex; align-items: center; gap: .8rem;
+      color: var(--ink);
+    }
+    .pc-feature::before { content: ''; width: 5px; height: 5px; background: var(--red); flex-shrink: 0; }
+    .btn-plan {
+      width: 100%; padding: .9rem;
+      font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+      font-size: .86rem; border: 2px solid var(--ink);
+      background: transparent; color: var(--ink);
+      cursor: pointer; transition: all .25s;
+    }
+    .btn-plan:hover { background: var(--ink); color: #fff; }
+    .pricing-card.featured .btn-plan {
+      background: var(--red); border-color: var(--red); color: #fff;
+    }
+    .pricing-card.featured .btn-plan:hover { background: var(--gold); border-color: var(--gold); color: var(--ink); }
+
+    /* ── FAQ ──────────────────────────────────────────────── */
+    #faq { background: var(--cream); }
+    .faq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-top: 3rem; }
+    .faq-item {
+      background: #fff; border: 1px solid var(--warm);
+      overflow: hidden;
+    }
+    .faq-q {
+      width: 100%; text-align: left; background: none; border: none;
+      padding: 1.4rem 1.6rem; cursor: pointer;
+      display: flex; justify-content: space-between; align-items: center;
+      font-weight: 600; font-size: .95rem; color: var(--ink);
+    }
+    .faq-q .icon {
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--warm); display: flex; align-items: center; justify-content: center;
+      font-size: .9rem; transition: transform .3s, background .3s; flex-shrink: 0;
+    }
+    .faq-item.open .faq-q .icon { transform: rotate(45deg); background: var(--red); color: #fff; }
+    .faq-a {
+      max-height: 0; overflow: hidden;
+      transition: max-height .4s ease, padding .3s;
+      font-size: .88rem; color: var(--mist); line-height: 1.7;
+      padding: 0 1.6rem;
+    }
+    .faq-item.open .faq-a { max-height: 300px; padding: 0 1.6rem 1.4rem; }
+
+    /* ── CTA Banner ───────────────────────────────────────── */
+    #cta {
+      background: var(--red);
+      padding: 6rem 4rem;
+      text-align: center;
+      position: relative; overflow: hidden;
+    }
+    #cta::before {
+      content: '始めよう';
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+      font-family: 'Noto Serif JP', serif;
+      font-size: 18vw; font-weight: 900;
+      color: rgba(255,255,255,.06); white-space: nowrap;
+      pointer-events: none;
+    }
+    #cta h2 { color: #fff; font-size: clamp(2rem,4vw,3.5rem); margin-bottom: 1rem; }
+    #cta p { color: rgba(255,255,255,.75); font-size: 1.1rem; max-width: 520px; margin: 0 auto 2.5rem; }
+    .btn-white {
+      background: #fff; color: var(--red);
+      padding: 1rem 3rem; font-weight: 700; letter-spacing: .05em;
+      text-decoration: none; display: inline-block;
+      transition: background .2s;
+      border: 2px solid #fff;
+    }
+    .btn-white:hover { background: transparent; color: #fff; }
+
+    /* ── Footer ───────────────────────────────────────────── */
+    footer {
+      background: var(--ink); color: var(--cream);
+      padding: 4rem 4rem 2rem;
+    }
+    .footer-top {
+      display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      gap: 4rem; margin-bottom: 3rem;
+    }
+    .footer-brand-name {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 1.5rem; font-weight: 900; color: var(--gold);
+      margin-bottom: .8rem;
+    }
+    .footer-tagline { font-size: .85rem; color: rgba(253,246,236,.5); line-height: 1.6; }
+    .footer-col h4 { font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.2rem; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: .7rem; }
+    .footer-col a { font-size: .86rem; color: rgba(253,246,236,.6); text-decoration: none; transition: color .2s; }
+    .footer-col a:hover { color: var(--cream); }
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,.08);
+      padding-top: 1.5rem;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .footer-copy { font-size: .8rem; color: rgba(253,246,236,.4); }
+    .footer-langs { display: flex; gap: .8rem; }
+    .footer-langs span {
+      font-size: .75rem; font-weight: 600;
+      padding: .25rem .6rem; border: 1px solid rgba(255,255,255,.15);
+      color: rgba(253,246,236,.5);
+    }
+
+    /* ── Keyframes ────────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Modal Enroll ─────────────────────────────────────── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(26,16,8,.7);
+      z-index: 2000; display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity .3s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: auto; }
+    .modal {
+      background: var(--paper); width: 90%; max-width: 480px;
+      padding: 2.5rem; position: relative;
+      border-top: 4px solid var(--red);
+      transform: translateY(30px); transition: transform .3s;
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+    .modal-close {
+      position: absolute; top: 1rem; right: 1rem;
+      background: none; border: none; font-size: 1.4rem;
+      cursor: pointer; color: var(--mist); transition: color .2s;
+    }
+    .modal-close:hover { color: var(--red); }
+    .modal h3 { font-family: 'Noto Serif JP', serif; font-size: 1.4rem; font-weight: 700; margin-bottom: .4rem; }
+    .modal-sub { font-size: .88rem; color: var(--mist); margin-bottom: 1.8rem; }
+    .form-group { margin-bottom: 1.2rem; }
+    .form-group label { display: block; font-size: .8rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--mist); margin-bottom: .4rem; }
+    .form-group input, .form-group select {
+      width: 100%; padding: .75rem 1rem;
+      border: 1px solid var(--warm); background: #fff;
+      font-family: 'DM Sans', sans-serif; font-size: .9rem; color: var(--ink);
+      outline: none; transition: border-color .2s;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: var(--red); }
+    .btn-submit {
+      width: 100%; padding: 1rem; background: var(--red); color: #fff;
+      border: none; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+      font-size: .9rem; cursor: pointer; transition: background .2s; margin-top: .5rem;
+    }
+    .btn-submit:hover { background: var(--ink); }
+    .modal-success { display: none; text-align: center; padding: 1rem 0; }
+    .modal-success.show { display: block; }
+    .success-icon { font-size: 3rem; margin-bottom: .8rem; }
+    .modal-success h4 { font-family: 'Noto Serif JP', serif; font-size: 1.2rem; font-weight: 700; margin-bottom: .5rem; color: var(--red); }
+    .modal-success p { font-size: .88rem; color: var(--mist); }
+
+    /* ── Responsive ───────────────────────────────────────── */
+    @media (max-width: 1024px) {
+      nav { padding: 1rem 2rem; }
+      .nav-links { display: none; }
+      #hero { grid-template-columns: 1fr; padding: 6rem 2rem 3rem; }
+      .hero-right { display: none; }
+      #hero::after { display: none; }
+      section { padding: 5rem 2rem; }
+      #stats { grid-template-columns: repeat(2,1fr); padding: 2rem; }
+      #about { grid-template-columns: 1fr; gap: 3rem; }
+      .courses-grid { grid-template-columns: repeat(2,1fr); }
+      .how-grid { grid-template-columns: repeat(2,1fr); }
+      #sensei { grid-template-columns: 1fr; gap: 3rem; }
+      .reviews-grid { grid-template-columns: 1fr 1fr; }
+      .pricing-grid { grid-template-columns: 1fr; }
+      .faq-grid { grid-template-columns: 1fr; }
+      .footer-top { grid-template-columns: 1fr 1fr; gap: 2rem; }
+      .reviews-header { grid-template-columns: 1fr; }
+      .rating-big { border-right: none; padding-right: 0; border-bottom: 1px solid var(--warm); padding-bottom: 2rem; }
+    }
+    @media (max-width: 600px) {
+      .courses-grid { grid-template-columns: 1fr; }
+      .reviews-grid { grid-template-columns: 1fr; }
+      .how-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<div id="progress-bar"></div>
+
+<!-- ── NAV ──────────────────────────────────────────────── -->
+<nav id="navbar">
+  <div class="nav-logo">日本語<span> Academy</span></div>
+  <ul class="nav-links">
+    <li><a href="#about">Tentang</a></li>
+    <li><a href="#courses">Kursus</a></li>
+    <li><a href="#sensei">Pengajar</a></li>
+    <li><a href="#reviews">Review</a></li>
+    <li><a href="#pricing">Harga</a></li>
+    <li><a href="#" class="nav-cta" onclick="openModal()">Daftar Sekarang</a></li>
+  </ul>
+</nav>
+
+<!-- ── HERO ─────────────────────────────────────────────── -->
+<section id="hero">
+  <div class="hero-kanji">語</div>
+  <div class="hero-left">
+    <div class="hero-tag">Kursus Online #1 Bahasa Jepang</div>
+    <h1>Kuasai<br><em>Bahasa Jepang</em><br>dari Rumah</h1>
+    <p class="hero-sub">Belajar Hiragana, Katakana, Kanji, hingga percakapan sehari-hari bersama sensei berpengalaman. Metode terstruktur, fleksibel, dan menyenangkan.</p>
+    <div class="hero-btns">
+      <a href="#courses" class="btn-primary">Lihat Kursus</a>
+      <a href="#about" class="btn-secondary">Pelajari Lebih</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-card-wrap">
+      <div class="hero-card">
+        <div class="hc-label">Program Unggulan</div>
+        <div class="hc-title">Nihongo Complete Path</div>
+        <div class="hc-levels">
+          <span>N5 Dasar</span>
+          <span>N4 Pemula</span>
+          <span>N3 Menengah</span>
+          <span>N2 Lanjut</span>
+          <span>N1 Mahir</span>
+        </div>
+        <div class="hc-stats">
+          <div>
+            <div class="hc-stat-num">12</div>
+            <div class="hc-stat-label">Bulan Program</div>
+          </div>
+          <div>
+            <div class="hc-stat-num">4.9</div>
+            <div class="hc-stat-label">Rating Bintang</div>
+          </div>
+          <div>
+            <div class="hc-stat-num">2k+</div>
+            <div class="hc-stat-label">Alumni</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── STATS ─────────────────────────────────────────────── -->
+<div id="stats">
+  <div class="stat-item reveal">
+    <span class="stat-num" data-target="2800">0</span>
+    <div class="stat-desc">Pelajar Aktif</div>
+  </div>
+  <div class="stat-item reveal">
+    <span class="stat-num" data-target="18">0</span>
+    <div class="stat-desc">Kursus Tersedia</div>
+  </div>
+  <div class="stat-item reveal">
+    <span class="stat-num" data-target="98">0</span>
+    <div class="stat-desc">% Kepuasan</div>
+  </div>
+  <div class="stat-item reveal">
+    <span class="stat-num" data-target="12">0</span>
+    <div class="stat-desc">Sensei Berpengalaman</div>
+  </div>
+</div>
+
+<!-- ── ABOUT ─────────────────────────────────────────────── -->
+<section id="about">
+  <div class="about-visual reveal-left">
+    <div class="about-img-box">
+      <div class="about-kanji-deco">日本語<br>学習</div>
+    </div>
+    <div class="about-badge">
+      <span class="about-badge-num">2019</span>
+      <div class="about-badge-text">Berdiri Sejak</div>
+    </div>
+  </div>
+  <div class="about-text reveal-right">
+    <div class="section-tag">Tentang Nihongo Academy</div>
+    <h2>Mengapa Belajar<br>di Nihongo Academy?</h2>
+    <p class="lead">Kami hadir sejak 2019 dengan misi membuat bahasa Jepang mudah dipahami dan menyenangkan untuk dipelajari — kapan saja, di mana saja, dengan metode yang terbukti efektif.</p>
+    <div class="about-features">
+      <div class="af-item">
+        <div class="af-icon">📚</div>
+        <div>
+          <div class="af-title">Kurikulum JLPT-Ready</div>
+          <div class="af-desc">Materi dirancang sesuai standar JLPT N5 hingga N1, memastikan kamu siap ujian internasional.</div>
+        </div>
+      </div>
+      <div class="af-item">
+        <div class="af-icon">🎥</div>
+        <div>
+          <div class="af-title">Video HD + Materi Interaktif</div>
+          <div class="af-desc">Setiap sesi direkam dalam kualitas tinggi lengkap dengan latihan soal, flashcard, dan kuis otomatis.</div>
+        </div>
+      </div>
+      <div class="af-item">
+        <div class="af-icon">💬</div>
+        <div>
+          <div class="af-title">Live Session & Community</div>
+          <div class="af-desc">Ikuti sesi langsung mingguan dan bergabung dengan komunitas ribuan pelajar Jepang se-Indonesia.</div>
+        </div>
+      </div>
+      <div class="af-item">
+        <div class="af-icon">🏆</div>
+        <div>
+          <div class="af-title">Sertifikat Resmi</div>
+          <div class="af-desc">Dapatkan sertifikat kelulusan digital yang diakui mitra perusahaan dan lembaga pendidikan Jepang.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── COURSES ────────────────────────────────────────────── -->
+<section id="courses">
+  <div class="courses-header reveal">
+    <div>
+      <div class="section-tag">Program Belajar</div>
+      <h2>Pilih Kursus<br>Sesuai Levelmu</h2>
+    </div>
+    <p class="lead" style="max-width:340px">Dari nol hingga mahir — setiap kursus dirancang progresif dan terstruktur.</p>
+  </div>
+  <div class="courses-grid">
+    <div class="course-card card-n1 reveal">
+      <div class="course-card-top">
+        <span class="course-level-badge">N5 · Pemula</span>
+        あ
+      </div>
+      <div class="course-card-body">
+        <div class="cc-title">Hiragana & Katakana Mastery</div>
+        <div class="cc-desc">Pelajari 46 karakter Hiragana dan Katakana secara sistematis dengan metode mnemonik visual yang terbukti efektif.</div>
+        <div class="cc-meta">
+          <span>📹 32 Video</span>
+          <span>⏱ 8 Jam</span>
+          <span>⭐ 4.9</span>
+        </div>
+        <div class="cc-price">
+          <div><div class="price-num">Rp 199k</div><div class="price-period">/ bulan</div></div>
+          <button class="btn-enroll" onclick="openModal('Hiragana & Katakana Mastery')">Daftar</button>
+        </div>
+      </div>
+    </div>
+    <div class="course-card card-n2 reveal">
+      <div class="course-card-top">
+        <span class="course-level-badge">N4 · Dasar</span>
+        漢
+      </div>
+      <div class="course-card-body">
+        <div class="cc-title">Kanji Dasar 300</div>
+        <div class="cc-desc">Kuasai 300 kanji paling umum digunakan dalam kehidupan sehari-hari di Jepang beserta reading dan maknanya.</div>
+        <div class="cc-meta">
+          <span>📹 48 Video</span>
+          <span>⏱ 14 Jam</span>
+          <span>⭐ 4.8</span>
+        </div>
+        <div class="cc-price">
+          <div><div class="price-num">Rp 249k</div><div class="price-period">/ bulan</div></div>
+          <button class="btn-enroll" onclick="openModal('Kanji Dasar 300')">Daftar</button>
+        </div>
+      </div>
+    </div>
+    <div class="course-card card-n3 reveal">
+      <div class="course-card-top">
+        <span class="course-level-badge">N3 · Menengah</span>
+        話
+      </div>
+      <div class="course-card-body">
+        <div class="cc-title">Percakapan Sehari-hari</div>
+        <div class="cc-desc">Latihan dialog natural untuk situasi nyata: belanja, transportasi, kerja, hingga pertemanan dengan native speaker.</div>
+        <div class="cc-meta">
+          <span>📹 56 Video</span>
+          <span>⏱ 18 Jam</span>
+          <span>⭐ 4.9</span>
+        </div>
+        <div class="cc-price">
+          <div><div class="price-num">Rp 299k</div><div class="price-period">/ bulan</div></div>
+          <button class="btn-enroll" onclick="openModal('Percakapan Sehari-hari')">Daftar</button>
+        </div>
+      </div>
+    </div>
+    <div class="course-card card-adv reveal">
+      <div class="course-card-top">
+        <span class="course-level-badge">N2 · Lanjut</span>
+        敬
+      </div>
+      <div class="course-card-body">
+        <div class="cc-title">Keigo — Bahasa Formal Jepang</div>
+        <div class="cc-desc">Pelajari tingkatan bahasa sopan (keigo) yang wajib dikuasai untuk dunia kerja dan lingkungan formal di Jepang.</div>
+        <div class="cc-meta">
+          <span>📹 40 Video</span>
+          <span>⏱ 12 Jam</span>
+          <span>⭐ 4.7</span>
+        </div>
+        <div class="cc-price">
+          <div><div class="price-num">Rp 349k</div><div class="price-period">/ bulan</div></div>
+          <button class="btn-enroll" onclick="openModal('Keigo')">Daftar</button>
+        </div>
+      </div>
+    </div>
+    <div class="course-card card-conv reveal">
+      <div class="course-card-top">
+        <span class="course-level-badge">N3 · Khusus</span>
+        旅
+      </div>
+      <div class="course-card-body">
+        <div class="cc-title">Japanese for Travel</div>
+        <div class="cc-desc">Paket khusus 4 minggu untuk kamu yang berencana wisata ke Jepang — dari bandara hingga onsen!</div>
+        <div class="cc-meta">
+          <span>📹 24 Video</span>
+          <span>⏱ 6 Jam</span>
+          <span>⭐ 5.0</span>
+        </div>
+        <div class="cc-price">
+          <div><div class="price-num">Rp 179k</div><div class="price-period">sekali bayar</div></div>
+          <button class="btn-enroll" onclick="openModal('Japanese for Travel')">Daftar</button>
+        </div>
+      </div>
+    </div>
+    <div class="course-card card-biz reveal">
+      <div class="course-card-top">
+        <span class="course-level-badge">N2–N1 · Pro</span>
+        仕
+      </div>
+      <div class="course-card-body">
+        <div class="cc-title">Business Japanese</div>
+        <div class="cc-desc">Kuasai Jepang bisnis: email formal, rapat, negosiasi, dan presentasi profesional di lingkungan kerja Jepang.</div>
+        <div class="cc-meta">
+          <span>📹 60 Video</span>
+          <span>⏱ 20 Jam</span>
+          <span>⭐ 4.8</span>
+        </div>
+        <div class="cc-price">
+          <div><div class="price-num">Rp 449k</div><div class="price-period">/ bulan</div></div>
+          <button class="btn-enroll" onclick="openModal('Business Japanese')">Daftar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── HOW IT WORKS ───────────────────────────────────────── -->
+<section id="how">
+  <div class="reveal" style="text-align:center;max-width:600px;margin:0 auto 0">
+    <div class="section-tag" style="justify-content:center">Cara Belajar</div>
+    <h2>4 Langkah Menuju<br>Fasih Berbahasa Jepang</h2>
+  </div>
+  <div class="how-grid">
+    <div class="how-step reveal">
+      <div class="how-line"></div>
+      <div class="how-num">01</div>
+      <div class="how-icon">🎯</div>
+      <div class="how-title">Pilih Level & Kursus</div>
+      <div class="how-desc">Ikuti tes penempatan gratis untuk mengetahui level bahasa Jepang kamu saat ini dan kursus yang paling tepat.</div>
+    </div>
+    <div class="how-step reveal">
+      <div class="how-line"></div>
+      <div class="how-num">02</div>
+      <div class="how-icon">📝</div>
+      <div class="how-title">Daftar & Akses Materi</div>
+      <div class="how-desc">Daftar dalam 2 menit, langsung akses semua video, materi PDF, dan latihan soal tanpa batas di platform kami.</div>
+    </div>
+    <div class="how-step reveal">
+      <div class="how-line"></div>
+      <div class="how-num">03</div>
+      <div class="how-icon">🎓</div>
+      <div class="how-title">Belajar & Latihan</div>
+      <div class="how-desc">Ikuti jadwal belajar fleksibel, kerjakan latihan otomatis, dan bergabung live session mingguan bersama sensei.</div>
+    </div>
+    <div class="how-step reveal">
+      <div class="how-num">04</div>
+      <div class="how-icon">🏅</div>
+      <div class="how-title">Ujian & Sertifikat</div>
+      <div class="how-desc">Selesaikan modul, ikuti ujian akhir online, dan raih sertifikat kelulusan resmi Nihongo Academy.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SENSEI ─────────────────────────────────────────────── -->
+<section id="sensei">
+  <div class="sensei-visual reveal-left">
+    <div class="sensei-kanji">先生</div>
+    <div class="sensei-name-tag">
+      <div class="sensei-name">Tanaka Yuki Sensei</div>
+      <div class="sensei-role">Head Instructor</div>
+    </div>
+  </div>
+  <div class="sensei-text reveal-right">
+    <div class="section-tag">Pengajar Utama</div>
+    <h2>Belajar dari Sensei<br>Berpengalaman</h2>
+    <p class="lead">Tanaka Yuki Sensei adalah native speaker dengan pengalaman 10+ tahun mengajar bahasa Jepang untuk pelajar Indonesia dan Asia Tenggara.</p>
+    <div class="sensei-quals">
+      <div class="sq-item">Lulusan Osaka University — Jurusan Linguistik Jepang</div>
+      <div class="sq-item">Sertifikat Japanese Language Teaching Proficiency (JLTP)</div>
+      <div class="sq-item">Pengalaman mengajar 2.800+ pelajar internasional</div>
+      <div class="sq-item">Penulis buku "Nihongo untuk Pemula Indonesia" (2021)</div>
+      <div class="sq-item">Spesialisasi: JLPT N5–N2, Keigo, Business Japanese</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── REVIEWS ────────────────────────────────────────────── -->
+<section id="reviews">
+  <div class="section-tag reveal">Ulasan Pelajar</div>
+  <div class="reviews-header">
+    <div class="rating-big reveal-left">
+      <div class="rating-num">4.9</div>
+      <div class="stars-big">★★★★★</div>
+      <div class="rating-count">dari 1.240 ulasan</div>
+    </div>
+    <div class="reveal-right">
+      <h2 style="margin-bottom:1.5rem">Apa Kata<br>Pelajar Kami?</h2>
+      <div class="rating-bars" id="ratingBars">
+        <div class="rb-row">
+          <span class="rb-label">5★</span>
+          <div class="rb-track"><div class="rb-fill" data-width="88%"></div></div>
+          <span class="rb-pct">88%</span>
+        </div>
+        <div class="rb-row">
+          <span class="rb-label">4★</span>
+          <div class="rb-track"><div class="rb-fill" data-width="8%"></div></div>
+          <span class="rb-pct">8%</span>
+        </div>
+        <div class="rb-row">
+          <span class="rb-label">3★</span>
+          <div class="rb-track"><div class="rb-fill" data-width="3%"></div></div>
+          <span class="rb-pct">3%</span>
+        </div>
+        <div class="rb-row">
+          <span class="rb-label">2★</span>
+          <div class="rb-track"><div class="rb-fill" data-width="1%"></div></div>
+          <span class="rb-pct">1%</span>
+        </div>
+        <div class="rb-row">
+          <span class="rb-label">1★</span>
+          <div class="rb-track"><div class="rb-fill" data-width="0%"></div></div>
+          <span class="rb-pct">0%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="reviews-grid">
+    <div class="review-card reveal">
+      <div class="rc-stars">★★★★★</div>
+      <div class="rc-text">"Saya mulai dari nol dan dalam 3 bulan sudah bisa membaca Hiragana & Katakana dengan lancar. Metode Tanaka Sensei sangat sistematis dan tidak membosankan!"</div>
+      <div class="rc-author">
+        <div class="rc-avatar">A</div>
+        <div>
+          <div class="rc-name">Anisa Rahmawati</div>
+          <div class="rc-info">Mahasiswa, Yogyakarta</div>
+        </div>
+      </div>
+      <div class="rc-course-badge">Hiragana & Katakana Mastery</div>
+    </div>
+    <div class="review-card reveal">
+      <div class="rc-stars">★★★★★</div>
+      <div class="rc-text">"Live session-nya sangat membantu. Bisa langsung tanya sensei dan dapat feedback instan. Investasi terbaik untuk karir saya di perusahaan Jepang!"</div>
+      <div class="rc-author">
+        <div class="rc-avatar">B</div>
+        <div>
+          <div class="rc-name">Budi Santoso</div>
+          <div class="rc-info">Karyawan Swasta, Jakarta</div>
+        </div>
+      </div>
+      <div class="rc-course-badge">Business Japanese</div>
+    </div>
+    <div class="review-card reveal">
+      <div class="rc-stars">★★★★★</div>
+      <div class="rc-text">"Perjalanan ke Jepang jadi jauh lebih seru! Berkat kursus Travel Japanese, saya bisa berinteraksi langsung dengan warga lokal. Rekomendasi banget!"</div>
+      <div class="rc-author">
+        <div class="rc-avatar">D</div>
+        <div>
+          <div class="rc-name">Dewi Kusuma</div>
+          <div class="rc-info">Travel Blogger, Bali</div>
+        </div>
+      </div>
+      <div class="rc-course-badge">Japanese for Travel</div>
+    </div>
+    <div class="review-card reveal">
+      <div class="rc-stars">★★★★☆</div>
+      <div class="rc-text">"Platform-nya mudah digunakan dan video HD-nya sangat jelas. Materi Kanji 300 lengkap banget. Tinggal minta lebih banyak latihan menulis tangan."</div>
+      <div class="rc-author">
+        <div class="rc-avatar">F</div>
+        <div>
+          <div class="rc-name">Fahri Maulana</div>
+          <div class="rc-info">Pelajar SMA, Bandung</div>
+        </div>
+      </div>
+      <div class="rc-course-badge">Kanji Dasar 300</div>
+    </div>
+    <div class="review-card reveal">
+      <div class="rc-stars">★★★★★</div>
+      <div class="rc-text">"Keigo adalah bagian tersulit dalam bahasa Jepang. Tapi sensei menjelaskannya dengan contoh konkret dan sangat sabar. Sekarang sudah lulus wawancara kerja di Tokyo!"</div>
+      <div class="rc-author">
+        <div class="rc-avatar">R</div>
+        <div>
+          <div class="rc-name">Rina Puspita</div>
+          <div class="rc-info">Fresh Graduate, Surabaya</div>
+        </div>
+      </div>
+      <div class="rc-course-badge">Keigo — Bahasa Formal</div>
+    </div>
+    <div class="review-card reveal">
+      <div class="rc-stars">★★★★★</div>
+      <div class="rc-text">"Komunitas pelajarnya sangat aktif dan supportif! Ada grup diskusi, language exchange, dan sharing tips ujian JLPT. Belajar jadi tidak terasa sendirian."</div>
+      <div class="rc-author">
+        <div class="rc-avatar">H</div>
+        <div>
+          <div class="rc-name">Hendra Wijaya</div>
+          <div class="rc-info">Programmer, Semarang</div>
+        </div>
+      </div>
+      <div class="rc-course-badge">Percakapan Sehari-hari</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PRICING ────────────────────────────────────────────── -->
+<section id="pricing">
+  <div class="reveal" style="text-align:center;max-width:540px;margin:0 auto">
+    <div class="section-tag" style="justify-content:center">Harga & Paket</div>
+    <h2>Investasi Terjangkau<br>untuk Masa Depanmu</h2>
+    <p class="lead">Pilih paket yang sesuai kebutuhan. Tanpa biaya tersembunyi, tanpa kontrak panjang.</p>
+  </div>
+  <div class="pricing-grid">
+    <div class="pricing-card reveal">
+      <div class="pc-plan">Starter</div>
+      <div class="pc-price"><sup>Rp</sup>199k</div>
+      <div class="pc-period">per bulan</div>
+      <div class="pc-desc">Ideal untuk pemula yang baru mulai belajar bahasa Jepang dari nol.</div>
+      <div class="pc-features">
+        <div class="pc-feature">Akses 1 kursus pilihan</div>
+        <div class="pc-feature">Video HD + materi PDF</div>
+        <div class="pc-feature">Latihan soal otomatis</div>
+        <div class="pc-feature">Forum komunitas</div>
+        <div class="pc-feature">Sertifikat digital</div>
+      </div>
+      <button class="btn-plan" onclick="openModal()">Mulai Belajar</button>
+    </div>
+    <div class="pricing-card featured reveal">
+      <div class="featured-badge">Paling Populer</div>
+      <div class="pc-plan">Pro</div>
+      <div class="pc-price"><sup>Rp</sup>399k</div>
+      <div class="pc-period">per bulan</div>
+      <div class="pc-desc">Paket lengkap untuk pelajar serius yang ingin cepat fasih berbahasa Jepang.</div>
+      <div class="pc-features">
+        <div class="pc-feature">Akses semua kursus</div>
+        <div class="pc-feature">Live session mingguan</div>
+        <div class="pc-feature">Feedback langsung dari sensei</div>
+        <div class="pc-feature">Flashcard & kuis interaktif</div>
+        <div class="pc-feature">Sertifikat resmi</div>
+        <div class="pc-feature">Prioritas dukungan sensei</div>
+      </div>
+      <button class="btn-plan" onclick="openModal()">Mulai Belajar</button>
+    </div>
+    <div class="pricing-card reveal">
+      <div class="pc-plan">Lifetime</div>
+      <div class="pc-price"><sup>Rp</sup>2.9jt</div>
+      <div class="pc-period">bayar sekali, selamanya</div>
+      <div class="pc-desc">Akses penuh selamanya termasuk semua kursus baru di masa mendatang.</div>
+      <div class="pc-features">
+        <div class="pc-feature">Semua fitur Pro</div>
+        <div class="pc-feature">Akses kursus baru selamanya</div>
+        <div class="pc-feature">1-on-1 sesi dengan sensei (4x)</div>
+        <div class="pc-feature">Konten eksklusif alumni</div>
+        <div class="pc-feature">Badge eksklusif di komunitas</div>
+      </div>
+      <button class="btn-plan" onclick="openModal()">Mulai Belajar</button>
+    </div>
+  </div>
+</section>
+
+<!-- ── FAQ ────────────────────────────────────────────────── -->
+<section id="faq">
+  <div class="reveal" style="text-align:center;max-width:520px;margin:0 auto 0">
+    <div class="section-tag" style="justify-content:center">Pertanyaan Umum</div>
+    <h2>Ada yang Ingin<br>Kamu Tanyakan?</h2>
+  </div>
+  <div class="faq-grid" id="faqGrid">
+    <div class="faq-item reveal">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        Apakah ada uji coba gratis? <span class="icon">+</span>
+      </button>
+      <div class="faq-a">Ya! Kamu bisa mencoba modul pertama dari setiap kursus secara gratis tanpa perlu memasukkan data kartu kredit. Daftar akun dan mulai eksplorasi sekarang.</div>
+    </div>
+    <div class="faq-item reveal">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        Berapa lama akses kursus berlaku? <span class="icon">+</span>
+      </button>
+      <div class="faq-a">Untuk paket Starter dan Pro, akses berlaku selama masa berlangganan aktif. Paket Lifetime memberikan akses seumur hidup termasuk pembaruan konten di masa mendatang.</div>
+    </div>
+    <div class="faq-item reveal">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        Apakah bisa belajar di perangkat mobile? <span class="icon">+</span>
+      </button>
+      <div class="faq-a">Tentu saja! Platform kami sepenuhnya responsif dan dapat diakses melalui browser di smartphone, tablet, laptop, maupun komputer desktop tanpa perlu instalasi aplikasi tambahan.</div>
+    </div>
+    <div class="faq-item reveal">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        Bagaimana jika tidak puas dengan kursus? <span class="icon">+</span>
+      </button>
+      <div class="faq-a">Kami menawarkan garansi uang kembali 14 hari tanpa pertanyaan. Jika dalam 14 hari pertama kamu merasa kursus tidak sesuai ekspektasi, hubungi tim kami untuk proses pengembalian penuh.</div>
+    </div>
+    <div class="faq-item reveal">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        Apakah sertifikat diakui secara resmi? <span class="icon">+</span>
+      </button>
+      <div class="faq-a">Sertifikat Nihongo Academy diakui oleh mitra perusahaan dan lembaga pendidikan kami. Namun perlu dicatat bahwa sertifikat kami bukan pengganti sertifikat JLPT resmi dari Japan Foundation.</div>
+    </div>
+    <div class="faq-item reveal">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        Apakah ada jadwal belajar yang harus diikuti? <span class="icon">+</span>
+      </button>
+      <div class="faq-a">Semua video bisa ditonton kapan saja sesuai jadwalmu. Live session mingguan memiliki jadwal tetap tetapi direkam dan bisa ditonton ulang bagi yang tidak bisa hadir langsung.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ────────────────────────────────────────────────── -->
+<section id="cta">
+  <h2 class="reveal">Siap Mulai Perjalanan<br>Bahasa Jepangmu?</h2>
+  <p class="reveal">Bergabunglah dengan 2.800+ pelajar yang sudah merasakan manfaat belajar di Nihongo Academy. Daftar sekarang dan akses modul pertama secara gratis!</p>
+  <a href="#" class="btn-white reveal" onclick="openModal()">Daftar Gratis Sekarang</a>
+</section>
+
+<!-- ── FOOTER ─────────────────────────────────────────────── -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <div class="footer-brand-name">日本語 Academy</div>
+      <div class="footer-tagline">Platform kursus bahasa Jepang online terpercaya untuk pelajar Indonesia. Mulai dari nol, raih fasih berbahasa Jepang.</div>
+    </div>
+    <div class="footer-col">
+      <h4>Kursus</h4>
+      <ul>
+        <li><a href="#">Hiragana & Katakana</a></li>
+        <li><a href="#">Kanji Dasar 300</a></li>
+        <li><a href="#">Percakapan Harian</a></li>
+        <li><a href="#">Business Japanese</a></li>
+        <li><a href="#">Japanese for Travel</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Perusahaan</h4>
+      <ul>
+        <li><a href="#">Tentang Kami</a></li>
+        <li><a href="#">Tim Pengajar</a></li>
+        <li><a href="#">Blog & Tips</a></li>
+        <li><a href="#">Press Kit</a></li>
+        <li><a href="#">Karir</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Bantuan</h4>
+      <ul>
+        <li><a href="#">FAQ</a></li>
+        <li><a href="#">Hubungi Kami</a></li>
+        <li><a href="#">Kebijakan Privasi</a></li>
+        <li><a href="#">Syarat & Ketentuan</a></li>
+        <li><a href="#">Refund Policy</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2026 Nihongo Academy. All rights reserved.</div>
+    <div class="footer-langs">
+      <span>🇮🇩 ID</span>
+      <span>🇯🇵 JP</span>
+      <span>🇬🇧 EN</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ── MODAL ──────────────────────────────────────────────── -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modalForm">
+      <h3>Daftar Sekarang</h3>
+      <p class="modal-sub" id="modalCourseLabel">Mulai perjalanan bahasa Jepangmu hari ini.</p>
+      <div class="form-group">
+        <label>Nama Lengkap</label>
+        <input type="text" id="regName" placeholder="Contoh: Budi Santoso"/>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="regEmail" placeholder="email@kamu.com"/>
+      </div>
+      <div class="form-group">
+        <label>Nomor WhatsApp</label>
+        <input type="tel" id="regPhone" placeholder="08xxxxxxxxxx"/>
+      </div>
+      <div class="form-group">
+        <label>Pilih Kursus</label>
+        <select id="regCourse">
+          <option>Hiragana & Katakana Mastery</option>
+          <option>Kanji Dasar 300</option>
+          <option>Percakapan Sehari-hari</option>
+          <option>Keigo — Bahasa Formal Jepang</option>
+          <option>Japanese for Travel</option>
+          <option>Business Japanese</option>
+        </select>
+      </div>
+      <button class="btn-submit" onclick="submitForm()">Daftar Sekarang →</button>
+    </div>
+    <div class="modal-success" id="modalSuccess">
+      <div class="success-icon">🎌</div>
+      <h4>Pendaftaran Berhasil!</h4>
+      <p>Terima kasih! Tim kami akan menghubungimu via WhatsApp dalam 1×24 jam. <br>よろしくお願いします！</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Custom Cursor
+  const cur = document.getElementById('cursor');
+  const ring = document.getElementById('cursor-ring');
+  document.addEventListener('mousemove', e => {
+    cur.style.left  = e.clientX + 'px';
+    cur.style.top   = e.clientY + 'px';
+    ring.style.left = e.clientX + 'px';
+    ring.style.top  = e.clientY + 'px';
+  });
+  document.querySelectorAll('a,button').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cur.style.transform = 'translate(-50%,-50%) scale(2.5)';
+      ring.style.opacity = '0';
+    });
+    el.addEventListener('mouseleave', () => {
+      cur.style.transform = 'translate(-50%,-50%) scale(1)';
+      ring.style.opacity = '.5';
+    });
+  });
+
+  // ── Scroll progress
+  window.addEventListener('scroll', () => {
+    const pct = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+    document.getElementById('progress-bar').style.width = pct + '%';
+  });
+
+  // ── Nav shrink on scroll
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 80);
+  });
+
+  // ── Intersection Observer for reveal
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: .12 });
+  document.querySelectorAll('.reveal,.reveal-left,.reveal-right').forEach(el => observer.observe(el));
+
+  // ── Stagger reveal delays for grids
+  document.querySelectorAll('.courses-grid .course-card, .reviews-grid .review-card, .how-grid .how-step, .pricing-grid .pricing-card').forEach((el,i) => {
+    el.style.transitionDelay = (i * .1) + 's';
+  });
+
+  // ── Animated counters
+  function animateCounter(el, target) {
+    let start = 0;
+    const duration = 1800;
+    const step = timestamp => {
+      if (!start) start = timestamp;
+      const progress = Math.min((timestamp - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 3);
+      el.textContent = Math.floor(ease * target).toLocaleString('id');
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+  const statsObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const nums = document.querySelectorAll('.stat-num[data-target]');
+        nums.forEach(n => { animateCounter(n, +n.dataset.target); n.removeAttribute('data-target'); });
+        statsObs.disconnect();
+      }
+    });
+  }, { threshold: .5 });
+  statsObs.observe(document.getElementById('stats'));
+
+  // ── Rating bars animate on scroll
+  const barsObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        document.querySelectorAll('.rb-fill').forEach(b => {
+          b.style.width = b.dataset.width;
+        });
+        barsObs.disconnect();
+      }
+    });
+  }, { threshold: .3 });
+  if (document.getElementById('ratingBars')) barsObs.observe(document.getElementById('ratingBars'));
+
+  // ── FAQ toggle
+  function toggleFaq(btn) {
+    const item = btn.closest('.faq-item');
+    const wasOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+    if (!wasOpen) item.classList.add('open');
+  }
+
+  // ── Modal
+  function openModal(course) {
+    if (course) {
+      document.getElementById('regCourse').value = course;
+      document.getElementById('modalCourseLabel').textContent = 'Daftar untuk: ' + course;
+    }
+    document.getElementById('modalOverlay').classList.add('open');
+    document.getElementById('modalForm').style.display = 'block';
+    document.getElementById('modalSuccess').classList.remove('show');
+  }
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+  }
+  function closeModalOutside(e) {
+    if (e.target === document.getElementById('modalOverlay')) closeModal();
+  }
+  function submitForm() {
+    const name  = document.getElementById('regName').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const phone = document.getElementById('regPhone').value.trim();
+    if (!name || !email || !phone) {
+      alert('Mohon lengkapi semua data terlebih dahulu.');
+      return;
+    }
+    document.getElementById('modalForm').style.display = 'none';
+    document.getElementById('modalSuccess').classList.add('show');
+    setTimeout(closeModal, 3500);
+  }
+
+  // ── Smooth scroll offset for fixed nav
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const id = a.getAttribute('href').slice(1);
+      const el = document.getElementById(id);
+      if (el) {
+        e.preventDefault();
+        window.scrollTo({ top: el.offsetTop - 72, behavior: 'smooth' });
+      }
+    });
+  });
+
+  // ── Parallax on hero kanji
+  window.addEventListener('scroll', () => {
+    const kanji = document.querySelector('.hero-kanji');
+    if (kanji) kanji.style.transform = `translateY(calc(-50% + ${window.scrollY * .3}px))`;
+  });
+</script>
+</body>
+</html>
